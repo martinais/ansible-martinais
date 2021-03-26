@@ -1,0 +1,25 @@
+- name: required packages are installed
+  become: true
+  package:
+    state: present
+    name: sudo
+
+- name: user tristan exists
+  become: true
+  user:
+    name: tristan
+    shell: /bin/bash
+
+- name: tristan is an admin
+  become: true
+  lineinfile:
+    path: /etc/sudoers.d/10-tristan
+    line: 'tristan ALL=(ALL) ALL'
+    create: yes
+    validate: 'visudo -cf %s'
+
+- name: the system is up to date
+  become: true
+  apt:
+    update_cache: true
+    upgrade: true

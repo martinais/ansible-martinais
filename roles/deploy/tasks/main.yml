@@ -1,0 +1,22 @@
+- name: required packages are installed
+  become: true
+  package:
+    name:
+      - make
+      - git
+
+- name: pull tic docker
+  become: true
+  git:
+    repo: https://github.com/martinais/docker-martinais.git
+    dest: /srv/docker-martinais/
+    track_submodules: true
+    force: yes
+
+- name: deploy apps
+  become: true
+  docker_compose:
+    project_name: martine
+    project_src: /srv/docker-martinais/
+    build: true
+    nocache: true
