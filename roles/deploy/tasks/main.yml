@@ -10,42 +10,27 @@
   git:
     repo: https://github.com/martinais/docker-martinais.git
     dest: /srv/docker-martinais/
-#    track_submodules: yes
     force: yes
   register: code
-#
-#- name: patch the `track_submodules` option
-#  become: true
-#  command: git submodule update
-#  args:
-#    chdir: /srv/docker-martinais
-#  when: code.changed
  
 - name: environment files are downloaded for remote project
   become: true
   fetch:
-    src: /srv/docker-martinais/.env.j2
-    dest: /tmp/.env.j2
+    src: "{{ item.remote }}"
+    dest: "{{ item.local }}"
     flat: true
-
-- name: environment files are downloaded for remote project
-  become: true
-  fetch:
-    src: /srv/docker-martinais/frontend/.env.production.j2
-    dest: /tmp/.env.production.j2
-    flat: true
+  loop:
+    - { remote: '/srv/docker-martinais/.env.j2', local: '/tmp/.env.j2' }
+    - { remote: '/srv/docker-martinais/frontend/.env.production.j2', local: '/tmp/.env.production.j2' }
 
 - name: environment files for main docker are generated
   become: true
   template:
-    src: /tmp/.env.j2
-    dest: /srv/docker-martinais/.env
-
-- name: environment files for main docker are generated
-  become: true
-  template:
-    src: /tmp/.env.production.j2
-    dest: /srv/docker-martinais/frontend/.env.production
+    src: "{{ item.local }}"
+    dest: "{{ item.remote }}"
+  loop:
+    - { remote: '/srv/docker-martinais/.env', local: '/tmp/.env.j2' }
+    - { remote: '/srv/docker-martinais/frontend/.env.production', local: '/tmp/.env.production.j2' }
 
 - name: app is deployed
   become: true
