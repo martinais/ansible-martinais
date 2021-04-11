@@ -1,6 +1,6 @@
 # ansible-tic
 
-## Usage
+## Usage
 
 ### Common
 

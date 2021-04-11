@@ -10,13 +10,56 @@
   git:
     repo: https://github.com/martinais/docker-martinais.git
     dest: /srv/docker-martinais/
-    track_submodules: true
+#    track_submodules: yes
     force: yes
+  register: code
+#
+#- name: patch the `track_submodules` option
+#  become: true
+#  command: git submodule update
+#  args:
+#    chdir: /srv/docker-martinais
+#  when: code.changed
+ 
+- name: environment files are downloaded for remote project
+  become: true
+  fetch:
+    src: /srv/docker-martinais/.env.j2
+    dest: /tmp/.env.j2
+    flat: true
 
-- name: deploy apps
+- name: environment files are downloaded for remote project
+  become: true
+  fetch:
+    src: /srv/docker-martinais/frontend/.env.production.j2
+    dest: /tmp/.env.production.j2
+    flat: true
+
+- name: environment files for main docker are generated
+  become: true
+  template:
+    src: /tmp/.env.j2
+    dest: /srv/docker-martinais/.env
+
+- name: environment files for main docker are generated
+  become: true
+  template:
+    src: /tmp/.env.production.j2
+    dest: /srv/docker-martinais/frontend/.env.production
+
+- name: app is deployed
   become: true
   docker_compose:
-    project_name: martine
+    project_name: martinade
     project_src: /srv/docker-martinais/
     build: true
     nocache: true
+    recreate: always
+  when: code.changed
+
+- name: initiate project
+  become: true
+  make:
+    chdir: /srv/docker-martinais
+    target: reset
+  when: code.changed
