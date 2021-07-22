@@ -5,12 +5,11 @@
       - make
       - git
 
-- name: pull tic docker
+- name: pull martinade docker
   become: true
   git:
     repo: https://github.com/martinais/docker-martinais.git
     dest: /srv/docker-martinais/
-    force: yes
   register: code
  
 - name: environment files are downloaded for remote project
@@ -39,8 +38,6 @@
     project_src: /srv/docker-martinais/
     build: true
     nocache: true
-    recreate: always
-  when: code.changed
 
 - name: initiate project
   become: true
